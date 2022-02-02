@@ -9,7 +9,7 @@ class TCPClient:
             client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
             print('=== サーバーと接続します ===')
-            client_socket.connect(('127.0.0.1', 80))
+            client_socket.connect(('127.0.0.1', 8080))
             print('=== サーバーとの接続が完了しました ===')
 
             with open('client_send.txt', 'rb') as f:
