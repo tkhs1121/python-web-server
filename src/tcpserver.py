@@ -15,7 +15,7 @@ class TCPServer:
             (client_socket, address) = server_socket.accept()
             print(f'=== クライアントの接続が完了しました remote_address: {address} ===')
 
-            request = client_socket(4096)
+            request = client_socket.recv(4096)
 
             with open('server_recv.txt', 'wb') as f:
                 f.write(request)
