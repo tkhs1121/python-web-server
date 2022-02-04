@@ -1,7 +1,12 @@
+import os
 import socket
 from datetime import datetime
 
 class WebServer:
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
     def serve(self):
         print('===サーバを起動します===')
 
@@ -21,16 +26,27 @@ class WebServer:
             with open('server_recv.txt', 'wb') as f:
                 f.write(request)
             
-            response_body = "<html><body><h1>It works!</h1></body></html>"
+            request_line, remain = request.split(b"\r\n", maxsplit=1)
+            request_header, request_body = remain.split(b"\r\n\r\n", maxsplit=1)
+
+            method, path, http_version = request_line.decode().split(" ")
+
+            relative_path = path.lstrip("/")
+
+            static_file_path = os.path.join(self.STATIC_ROOT, relative_path).replace(os.sep, "/")
+
+            with open(static_file_path, "rb") as f:
+                response_body = f.read()
+ 
             response_line = "HTTP/1.1 200 OK\r\n"
             response_header = ""
             response_header += f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M %S GMT')}\r\n"
             response_header += "HOST: HenaServer/0.1\r\n"
-            response_header += f"Content-Length: {len(response_body.encode())}\r\n"
+            response_header += f"Content-Length: {len(response_body)}\r\n"
             response_header += "Connection: Close\r\n"
             response_header += "Content-Type: text/html\r\n"
 
-            response = (response_line + response_header + "\r\n" + response_body).encode()
+            response = (response_line + response_header + "\r\n").encode() + response_body
             
             client_socket.send(response)
             client_socket.close()
