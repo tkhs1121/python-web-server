@@ -8,6 +8,14 @@ class WebServer:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
+    MIME_TYPES = {
+        "html": "text/html",
+        "css": "text/css",
+        "png": "image/png",
+        "jpg": "image/jpg",
+        "gif": "image/gif",
+    }
+
     def serve(self):
         print('===サーバを起動します===')
 
@@ -47,13 +55,20 @@ class WebServer:
                     except OSError:
                         response_body = b"<html><body><h1>404 Not Found</h1></body></html>"
                         response_line = "HTTP/1.1 404 Found\r\n"
+                    
+                    if "." in path:
+                        ext = path.rsplit(".", maxsplit=1)[-1]
+                    else:
+                        ext = ""
+
+                    content_type = self.MIME_TYPES.get(ext, "application/octet-stream")
         
                     response_header = ""
                     response_header += f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M %S GMT')}\r\n"
                     response_header += "HOST: HenaServer/0.1\r\n"
                     response_header += f"Content-Length: {len(response_body)}\r\n"
                     response_header += "Connection: Close\r\n"
-                    response_header += "Content-Type: text/html\r\n"
+                    response_header += f"Content-Type: {content_type}\r\n"
 
                     response = (response_line + response_header + "\r\n").encode() + response_body
                     
