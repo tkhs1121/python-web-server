@@ -14,7 +14,7 @@ class WorkerThread(Thread):
     STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
     MIME_TYPES = {
-        "html": "text/html",
+        "html": "text/html; charset=UTF-8",
         "css": "text/css",
         "png": "image/png",
         "jpg": "image/jpg",
@@ -50,7 +50,7 @@ class WorkerThread(Thread):
                         """
 
                 response_body = textwrap.dedent(html).encode()
-                content_type = "text/html"
+                content_type = "text/html; charset=UTF-8"
                 response_line = "HTTP/1.1 200 OK\r\n"
 
             elif path == "/show_request":
@@ -70,7 +70,7 @@ class WorkerThread(Thread):
                 """
 
                 response_body = textwrap.dedent(html).encode()
-                content_type = "text/html"
+                content_type = "text/html; charset=UTF-8"
                 response_line = "HTTP/1.1 200 OK\r\n"
 
             else:
@@ -81,7 +81,7 @@ class WorkerThread(Thread):
 
                 except OSError:
                     response_body = b"<html><body><h1>404 Not Found</h1></body></html>"
-                    content_type = "text/html"
+                    content_type = "text/html; charset=UTF-8"
                     response_line = "HTTP/1.1 404 Found\r\n"
             
             response_header = self.build_response_header(path, response_body, content_type)
