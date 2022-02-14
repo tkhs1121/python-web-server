@@ -7,9 +7,9 @@ from typing import Tuple, Optional
 from threading import Thread
 from datetime import datetime
 
-import views
 from henango.http.request import HTTPRequest
 from henango.http.response import HTTPResponse
+from urls import URL_VIEW
 
 class WorkerThread(Thread):
 
@@ -22,12 +22,6 @@ class WorkerThread(Thread):
         "png": "image/png",
         "jpg": "image/jpg",
         "gif": "image/gif",
-    }
-
-    URL_VIEW = {
-        "/now": views.now,
-        "/show_request": views.show_request,
-        "/parameters": views.parameters,
     }
 
     STATUS_LINES = {
@@ -55,8 +49,8 @@ class WorkerThread(Thread):
             content_type: Optional[str]
             response_line: str
 
-            if request.path in self.URL_VIEW:
-                view = self.URL_VIEW[request.path]
+            if request.path in URL_VIEW:
+                view = URL_VIEW[request.path]
                 response = view(request)
             
             else:
