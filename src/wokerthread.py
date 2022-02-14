@@ -41,7 +41,7 @@ class WorkerThread(Thread):
 
             response_body: bytes
             content_type: Optional[str]
-            rensponse_line: str
+            response_line: str
 
             if path == "/now":
                 response_body, content_type, response_line = views.now()
