@@ -64,6 +64,6 @@ def parameters(request: HTTPRequest) -> HTTPResponse:
 
         body = textwrap.dedent(html).encode()
         content_type = "text/html; charset=UTF-8"
-        response_line = 200
+        status_code = 200
 
-        return HTTPResponse(body=body, content_type=content_type, status_code=status_code)
+    return HTTPResponse(body=body, content_type=content_type, status_code=status_code)
