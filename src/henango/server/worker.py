@@ -47,22 +47,8 @@ class Worker(Thread):
 
             view = URLResolver().resolve(request)
 
-            if view:
-                response = view(request)
-            
-            else:
-                try:
-                    response_body = self.get_static_file_content(request.path)
-                    content_type = None
-                    response = HTTPResponse(body=response_body, content_type=content_type, status_code=200)
+            response = view(request)
 
-                except OSError:
-                    traceback.print_exc()
-
-                    response_body = b"<html><body><h1>404 Not Found</h1></body></html>"
-                    content_type = "text/html; charset=UTF-8"
-                    response = HTTPResponse(body=response_body, content_type=content_type, status_code=404)
-            
             response_line = self.build_response_line(response)
             response_header = self.build_response_header(response, request)
             response_bytes = (response_line + response_header + "\r\n").encode() + response.body
