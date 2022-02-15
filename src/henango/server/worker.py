@@ -49,6 +49,9 @@ class Worker(Thread):
 
             response = view(request)
 
+            if isinstance(response.body, str):
+                response.body = response.body.encode()
+
             response_line = self.build_response_line(response)
             response_header = self.build_response_header(response, request)
             response_bytes = (response_line + response_header + "\r\n").encode() + response.body
