@@ -47,7 +47,7 @@ def parameters(request: HTTPRequest) -> HTTPResponse:
 
     elif request.method == "POST":
         post_params = urllib.parse.parse_qs(request.body.decode())
-        html = f"""\
+        html = f"""
                 <html>
                 <body>
                     <h1>Parameters:</h1>
