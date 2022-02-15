@@ -1,5 +1,5 @@
-from webserver import WebServer
+from server import Server
 
 if __name__ == '__main__':
-    server = WebServer()
+    server = Server()
     server.serve()
