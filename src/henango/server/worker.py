@@ -1,7 +1,6 @@
 import os
 import re
 import traceback
-from re import Match
 from socket import socket
 from typing import Tuple, Optional
 from threading import Thread
@@ -9,7 +8,7 @@ from datetime import datetime
 
 from henango.http.request import HTTPRequest
 from henango.http.response import HTTPResponse
-from urls import URL_VIEW
+from urls import url_patterns
 import settings
 
 class Worker(Thread):
@@ -46,10 +45,11 @@ class Worker(Thread):
 
             request = self.parse_http_request(request_bytes)
 
-            for url_pattern, view in URL_VIEW.items():
-                match = self.url_match(url_pattern, request.path)
+            for url_pattern in url_patterns:
+                match = url_pattern.match(request.path)
                 if match:
                     request.params.update(match.groupdict())
+                    view = url_pattern.view
                     response = view(request)
                     break
             
@@ -127,7 +127,3 @@ class Worker(Thread):
     def build_response_line(self, response: HTTPResponse) -> str:
         status_line = self.STATUS_LINES[response.status_code]
         return f"HTTP/1.1 {status_line}"
-    
-    def url_match(self, url_pattern: str, path: str) -> Optional[Match]:
-        re_pattern = re.sub(r"<(.+?)>", r"(?P<\1>[^/]+)", url_pattern)
-        return re.match(re_pattern, path)
