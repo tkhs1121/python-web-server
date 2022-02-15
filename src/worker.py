@@ -2,7 +2,6 @@ import os
 import re
 import traceback
 from socket import socket
-from pprint import pformat
 from typing import Tuple, Optional
 from threading import Thread
 from datetime import datetime
