@@ -14,7 +14,7 @@ class WebServer:
                 print('=== Server: クライアントからの接続を待ちます===')
                 (client_socket, address) = server_socket.accept()
                 print(f'=== Server: クライアントの接続が完了しました remote_address: {address} ===')
-  
+
                 thread = WorkerThread(client_socket, address)
 
                 thread.start()
@@ -30,7 +30,3 @@ class WebServer:
         server_socket.listen(10)
 
         return server_socket
-    
-if __name__ == '__main__':
-    server = WebServer()
-    server.serve()
