@@ -1,6 +1,7 @@
 import os
 import re
 import traceback
+from re import Match
 from socket import socket
 from typing import Tuple, Optional
 from threading import Thread
@@ -45,13 +46,12 @@ class Worker(Thread):
 
             request = self.parse_http_request(request_bytes)
 
-            response_body: bytes
-            content_type: Optional[str]
-            response_line: str
-
-            if request.path in URL_VIEW:
-                view = URL_VIEW[request.path]
-                response = view(request)
+            for url_pattern, view in URL_VIEW.items():
+                match = self.url_match(url_pattern, request.path)
+                if match:
+                    request.params.update(match.groupdict())
+                    response = view(request)
+                    break
             
             else:
                 try:
@@ -127,3 +127,7 @@ class Worker(Thread):
     def build_response_line(self, response: HTTPResponse) -> str:
         status_line = self.STATUS_LINES[response.status_code]
         return f"HTTP/1.1 {status_line}"
+    
+    def url_match(self, url_pattern: str, path: str) -> Optional[Match]:
+        re_pattern = re.sub(r"<(.+?)>", r"(?P<\1>[^/]+)", url_pattern)
+        return re.match(re_pattern, path)
