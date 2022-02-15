@@ -9,6 +9,7 @@ from datetime import datetime
 from henango.http.request import HTTPRequest
 from henango.http.response import HTTPResponse
 from urls import URL_VIEW
+import settings
 
 class Worker(Thread):
 
@@ -95,9 +96,11 @@ class Worker(Thread):
     
     def get_static_file_content(self, path: str) -> bytes:
 
-        relative_path = path.lstrip("/")
+        default_static_root = os.path.join(os.path.dirname(__file__), "../../static")
+        static_root = getattr(settings, "STATIC_ROOT", default_static_root)
 
-        static_file_path = os.path.join(self.STATIC_ROOT, relative_path)
+        relative_path = path.lstrip("/")
+        static_file_path = os.path.join(static_root, relative_path)
 
         with open(static_file_path, "rb") as f:
             return f.read()
