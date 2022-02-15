@@ -1,4 +1,3 @@
-import textwrap
 import urllib.parse
 from datetime import datetime
 from pprint import pformat

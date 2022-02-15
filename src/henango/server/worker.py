@@ -2,7 +2,7 @@ import os
 import re
 import traceback
 from socket import socket
-from typing import Tuple, Optional
+from typing import Tuple
 from threading import Thread
 from datetime import datetime
 
