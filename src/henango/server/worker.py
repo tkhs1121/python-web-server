@@ -8,7 +8,7 @@ from datetime import datetime
 
 from henango.http.request import HTTPRequest
 from henango.http.response import HTTPResponse
-from urls import url_patterns
+from henango.urls.resolver import URLResolver
 import settings
 
 class Worker(Thread):
@@ -45,13 +45,10 @@ class Worker(Thread):
 
             request = self.parse_http_request(request_bytes)
 
-            for url_pattern in url_patterns:
-                match = url_pattern.match(request.path)
-                if match:
-                    request.params.update(match.groupdict())
-                    view = url_pattern.view
-                    response = view(request)
-                    break
+            view = URLResolver().resolve(request)
+
+            if view:
+                response = view(request)
             
             else:
                 try:
