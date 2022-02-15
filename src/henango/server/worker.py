@@ -2,16 +2,16 @@ import os
 import re
 import traceback
 from socket import socket
-from pprint import pformat
-from typing import Tuple, Optional
+from typing import Tuple
 from threading import Thread
 from datetime import datetime
 
 from henango.http.request import HTTPRequest
 from henango.http.response import HTTPResponse
-from urls import URL_VIEW
+from henango.urls.resolver import URLResolver
+import settings
 
-class WorkerThread(Thread):
+class Worker(Thread):
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     STATIC_ROOT = os.path.join(BASE_DIR, "static")
@@ -45,27 +45,13 @@ class WorkerThread(Thread):
 
             request = self.parse_http_request(request_bytes)
 
-            response_body: bytes
-            content_type: Optional[str]
-            response_line: str
+            view = URLResolver().resolve(request)
 
-            if request.path in URL_VIEW:
-                view = URL_VIEW[request.path]
-                response = view(request)
-            
-            else:
-                try:
-                    response_body = self.get_static_file_content(request.path)
-                    content_type = None
-                    response = HTTPResponse(body=response_body, content_type=content_type, status_code=200)
+            response = view(request)
 
-                except OSError:
-                    traceback.print_exc()
+            if isinstance(response.body, str):
+                response.body = response.body.encode()
 
-                    response_body = b"<html><body><h1>404 Not Found</h1></body></html>"
-                    content_type = "text/html; charset=UTF-8"
-                    response = HTTPResponse(body=response_body, content_type=content_type, status_code=404)
-            
             response_line = self.build_response_line(response)
             response_header = self.build_response_header(response, request)
             response_bytes = (response_line + response_header + "\r\n").encode() + response.body
@@ -96,9 +82,11 @@ class WorkerThread(Thread):
     
     def get_static_file_content(self, path: str) -> bytes:
 
-        relative_path = path.lstrip("/")
+        default_static_root = os.path.join(os.path.dirname(__file__), "../../static")
+        static_root = getattr(settings, "STATIC_ROOT", default_static_root)
 
-        static_file_path = os.path.join(self.STATIC_ROOT, relative_path)
+        relative_path = path.lstrip("/")
+        static_file_path = os.path.join(static_root, relative_path)
 
         with open(static_file_path, "rb") as f:
             return f.read()
@@ -108,10 +96,10 @@ class WorkerThread(Thread):
         if response.content_type is None:
             if "." in request.path:
                 ext = request.path.rsplit(".", maxsplit=1)[-1]
-            else:
-                ext = ""
 
-            response.content_type = self.MIME_TYPES.get(ext, "application/octet-stream")
+                response.content_type = self.MIME_TYPES.get(ext, "application/octet-stream")
+            else:
+                response.content_type = "text/html; charset=UTF-8"
     
         response_header = ""
         response_header += f"Date: {datetime.utcnow().strftime('%a, %d %b %Y %H:%M %S GMT')}\r\n"
@@ -119,6 +107,9 @@ class WorkerThread(Thread):
         response_header += f"Content-Length: {len(response.body)}\r\n"
         response_header += "Connection: Close\r\n"
         response_header += f"Content-Type: {response.content_type}\r\n"
+
+        for header_name, header_value in response.headers.items():
+            response_header += f"{header_name}: {header_value}\r\n"
 
         return response_header
     
