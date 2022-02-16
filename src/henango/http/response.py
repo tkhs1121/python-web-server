@@ -3,6 +3,7 @@ from typing import Optional
 class HTTPResponse:
     status_code: int
     headers: dict
+    cookies: dict
     content_type: Optional[str]
     body: bytes
 
@@ -10,14 +11,18 @@ class HTTPResponse:
         self, 
         status_code: int = 200, 
         headers: dict = None,
+        cookies: dict = None,
         content_type: str = None, 
         body: bytes = b""
     ) -> None:
 
         if headers is None:
             headers = {}
+        if cookies is None:
+            cookies = {}
             
         self.status_code = status_code
         self.content_type = content_type
         self.headers = headers
+        self.cookies = cookies
         self.body = body
