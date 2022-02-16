@@ -1,4 +1,3 @@
-import imp
 import views
 from henango.urls.pattern import URLPattern
 

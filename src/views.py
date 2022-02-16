@@ -17,8 +17,12 @@ def now(request: HTTPRequest) -> HTTPResponse:
 
 def show_request(request: HTTPRequest) -> HTTPResponse:
 
-    context = {"request": request, "headers": pformat(
-        request.headers), "body": request.body.decode("utf-8", "ignore")}
+    context = {
+        "request": request, 
+        "headers": pformat(request.headers), 
+        "body": request.body.decode("utf-8", "ignore")
+    }
+
     body = render("show_request.html", context)
 
     return HTTPResponse(body=body)
